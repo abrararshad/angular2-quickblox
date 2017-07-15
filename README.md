@@ -1,16 +1,19 @@
 # angular2-quickblox
 Angular 2 module for QuickBlox. It can only receive group or single call for now and displays recipients' and local's stream in in a popup, calling other parties could be added with little more code. (no chating functionality so far). 
 
+
 # Config
 Add your parameters/config in qb-config.ts
 
-# Initialization
 
-Dependencies
+# Dependencies
 - @angular/material - HTML could be changed in order to remove material dependency
 - jquery
 - underscore
 - screenfull
+
+
+# Initialization
 
 Include QuickBlox SDK. Adding it as NPM package causes issues
 ```
