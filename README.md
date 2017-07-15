@@ -6,6 +6,12 @@ Add your parameters/config in qb-config.ts
 
 # Initialization
 
+Dependencies
+- @angular/material - HTML could be changed in order to remove material dependency
+- jquery
+- underscore
+- screenfull
+
 Include QuickBlox SDK. Adding it as NPM package causes issues
 ```
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quickblox/2.6.0/quickblox.min.js"></script>   
