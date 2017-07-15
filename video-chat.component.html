@@ -1,0 +1,183 @@
+<div class="video-chat-overlay" #overlay></div>
+<div style="display: none" class=" main-container" #mainContainer>
+    <div class="relative-container">
+
+            <div class="row" (mousedown)="drag($event)" (mouseup)="drop()" id="windowbar"> 
+                <div class="col-lg-12 window-bar" *ngIf="isCallInProgress"> 
+                    <ul class="list-inline">
+                        <li>
+                            <i class="material-icons" (click)="fullscreen('on')" >fullscreen</i>
+                        </li>
+                        <!--
+                        <li>
+                            <i class="material-icons">indeterminate_check_box</i>
+                        </li>
+                        -->
+                    </ul>
+
+                    <div class="windowbar-info">
+                        <span class="call-time"> {{callTime | callTimer}}  </span>
+                        <span *ngIf="selectedStreamUser">( {{selectedStreamUser}} )</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="row" *ngIf="!callEnded" [ngClass]="{callInProgressContainer: isCallInProgress}" #fullScreenContainer>
+                <div class="col-lg-12 vid-main-container" #videoContainer *ngIf="!errorOccurred && isCallInProgress">
+                    <div class="row">
+
+                        <div class="col-lg-2 apponents-list" #opponentList>
+                            <div class="opponent-box"></div>
+                            <div class="opp-local opponent-box" 
+                                [ngClass]="{'selectedOpponent': selectedStream == 'local', 'hidden': mutes.video.status}">
+                                <div class="caller-info"> You </div>
+                                <video class="video" id="localVideo" 
+                                    (click)="switchBig(null, 'local')" #localVideo style="width:100%;"></video>
+                            </div>
+
+                            <div class="opponent-box" 
+                                *ngFor="let p of opponents; let i=index" 
+                                [ngClass]="{'selectedOpponent': selectedStream == p.userID, 'hidden': !p.detail?.full_name}" >
+                               
+                                <div class="caller-info">{{ p.detail?.full_name }}</div>
+
+                                <video class="video" id="remoteVideo_{{p.userID}}" 
+                                    (click)="switchBig(p.userID)" style="width:100%;" 
+                                    [ngClass]="{'hidden': p.state != 'CONNECTED'}"></video>
+                                    
+                                <div *ngIf="p.state != 'CONNECTED'" 
+                                    class="stream-connecting"> {{ p.state }} </div>
+                            </div>
+                            
+                        </div>    
+
+                        <div class="col-lg-10 video-container">
+                            <div class="row" style="height:100%;"> 
+
+                                <div class="col-lg-12 fullscreen-bar" *ngIf="isFullscreen">
+                                    <ul class="list-inline">
+                                        <li>
+                                            <i class="material-icons" (click)="fullscreen('exit')" >fullscreen_exit</i>
+                                        </li>
+                                        <!--
+                                        <li>
+                                            <i class="material-icons">indeterminate_check_box</i>
+                                        </li>
+                                        -->
+                                    </ul>     
+                                    <div class="windowbar-info">
+                                        <span class="call-time"> {{callTime | callTimer}}  </span>
+                                        <span *ngIf="selectedStreamUser">( {{selectedStreamUser}} )</span>
+                                    </div>               
+                                </div>
+
+                                <div class="col-lg-12" style="height:100%;">
+                                    <div style="overflow: hidden;height:100%;width:100%;">
+                                        <video class="video" id="remoteVideo_big" style="height:100%;"></video>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12 call-buttons">
+                                    <div class="row" style="width:350px; margin:auto">
+                              <!-- Call Buttons -->
+                                <div class="col-sm-3" *ngIf="isCallInProgress">
+                                    <button md-fab color="accent" (click)="mute('audio')"><md-icon>
+                                    {{mutes.audio.icon}}
+                                    </md-icon></button>
+                                </div>                           
+                                <div class="col-sm-3" *ngIf="isCallInProgress">
+                                    <button md-fab color="accent" (click)="mute('video')"><md-icon>
+                                        {{mutes.video.icon}}
+                                    </md-icon></button>
+                                </div>                                 
+                                <div class="col-sm-3" *ngIf="isCallInProgress">
+                                    <button md-fab color="accent" (click)="muteSpeakers()"><md-icon>
+                                        {{mutes.speakers.icon}}
+                                    </md-icon></button>
+                                </div>                        
+                                <div class="col-sm-3" *ngIf="isCallInProgress">
+                                    <button md-fab color="warn" (click)="endCall()"><md-icon>call_end</md-icon></button>
+                                </div>
+                              <!-- /Call Buttons -->
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- When call is coming -->
+                <div class="col-lg-12 incoming-call-container" [ngClass]="{inCallButtons: isCallInProgress}" 
+                        *ngIf="!errorOccurred && !isCallInProgress">
+                        
+                    <div class="row">
+                        <div class="col-lg-12" *ngIf="isCallComing">
+                            <div class="row caller-info-container">
+                                <div class="col-lg-2">
+                                    <img src="assets/img/default_user_pic.png" class="caller-picture" />
+                                </div>
+                                <div class="col-lg-10">
+                                    <span class="caller-name"> 
+                                        {{caller}} is calling...
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row callee-actions" *ngIf="isCallComing">
+                        <div class="col-sm-4">
+                            <button md-button color="primary" (click)="acceptCall('video')"><md-icon>videocam</md-icon> Video</button>
+                        </div>
+                        <div class="col-sm-4">
+                            <button md-button color="primary" (click)="acceptCall('audio')"><md-icon>call</md-icon> Audio</button>
+                        </div>                        
+                        <div class="col-sm-4">
+                            <button md-button color="warn" (click)="endCall()"><md-icon>call_end</md-icon> Reject</button>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Call is ended -->
+                <div data-size="20" class="col-lg-12 error-container" *ngIf="errorOccurred">
+                    <h5>Sorry, there seems to be an error at the moment. 
+                        <br /> <br />
+                        Please make sure to allow access to video and access when prompted.</h5>
+                    <br /><br /> 
+                    <button type="button" style="width:100%" md-raised-button 
+                    (click)="dismissDialog()">OK</button>
+                </div>
+
+                <!-- When call ends -->
+                <!--
+                <div class="col-lg-12 call-ended-container" *ngIf="callEnded">
+                    <h2>Call Ended!</h2>
+                </div> 
+                -->
+            </div>
+
+    </div>  <!-- relative-container -->  
+ </div>
+
+
+
+<div style="display: none">
+    <audio loop #inComingCallRing>
+        <source src="assets/audio/ringtone.ogg" type="audio/ogg">
+        <source src="assets/audio/ringtone.mp3" type="audio/mpeg">        
+    </audio> 
+
+    <audio #callDroppedRing>
+        <source src="assets/audio/end_of_call.ogg" type="audio/ogg">
+        <source src="assets/audio/end_of_call.mp3" type="audio/mpeg">        
+    </audio> 
+</div>    
