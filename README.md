@@ -1,35 +1,46 @@
 # angular2-quickblox
-Angular 2 module for QuickBlox. It can only receive group or single call for now, calling other parties could be added with little more code. (no chating functionality so far). 
+Angular 2 module for QuickBlox. It can only receive group or single call for now and displays recipients' and local's stream in in a popup, calling other parties could be added with little more code. (no chating functionality so far). 
 
 # Config
 Add your parameters/config in qb-config.ts
 
 # Initialization
 
+Include QuickBlox SDK. Adding it as NPM package causes issues
+```
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quickblox/2.6.0/quickblox.min.js"></script>   
+```
+
+Place it somewhere in the component's HTML file
+```
+<app-video-chat></app-video-chat>
+```
+
+Init through the service
 ```
 this.videoChatService.initVideoChatEssentials(login, pass);
 ```
 
-# Initialization - Complete example
+# Initialization - complete code example
 ```
-  private qbConfig: any;
-  public videoChatStatus: boolean = false; 
-  public videoChatStatusDesc: string;
-  private videChatStatusSubscriber: any;
-  private userLoginStatusEmitter: any;
-  private isVideoInited: boolean = false;
-  public statusText: string = 'Offline';
+ private qbConfig: any;
+ public videoChatStatus: boolean = false; 
+ public videoChatStatusDesc: string;
+ private videChatStatusSubscriber: any;
+ private userLoginStatusEmitter: any;
+ private isVideoInited: boolean = false;
+ public statusText: string = 'Offline';
   
-   constructor( 
-    private userService: UserService, 
-    private videoChatService: QBService,
-    private qbConfigService: QBAppConfigService) {
+ constructor( 
+   private userService: UserService, 
+   private videoChatService: QBService,
+   private qbConfigService: QBAppConfigService) {
 
-    qbConfigService.getConfig().subscribe(c => {
-      this.qbConfig = c;    
-    });        
+   qbConfigService.getConfig().subscribe(c => {
+     this.qbConfig = c;    
+   });        
     
-  }
+ }
  initVideoChat(){
     if(this.isVideoInited)
       return;
