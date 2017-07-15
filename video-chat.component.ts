@@ -4,8 +4,6 @@ import * as jQuery from 'jquery';
 import * as _ from 'underscore';
 import * as screenfull from 'screenfull';
 
-import { InnerPageAnimation } from '../../animations';
-
 import {
         QBService, 
         CallEventState,
@@ -38,8 +36,7 @@ declare var QB: any;
     selector: 'app-video-chat',
     moduleId: module.id,
     templateUrl: './video-chat.component.html',
-    styleUrls: [ './video-chat.component.scss' ],
-    animations: [ InnerPageAnimation ]
+    styleUrls: [ './video-chat.component.scss' ]
 })
 export class VideoChatComponent implements OnInit, OnDestroy{
     @ViewChild('overlay') overlayRef: ElementRef;
