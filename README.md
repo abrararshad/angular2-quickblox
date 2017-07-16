@@ -32,62 +32,63 @@ this.videoChatService.initVideoChatEssentials(login, pass);
 
 # Initialization - complete code example
 ```
- private qbConfig: any;
- public videoChatStatus: boolean = false; 
- public videoChatStatusDesc: string;
- private videChatStatusSubscriber: any;
- private userLoginStatusEmitter: any;
- private isVideoInited: boolean = false;
- public statusText: string = 'Offline';
+private qbConfig: any;
+public videoChatStatus: boolean = false; 
+public videoChatStatusDesc: string;
+private videChatStatusSubscriber: any;
+private userLoginStatusEmitter: any;
+private isVideoInited: boolean = false;
+public statusText: string = 'Offline';
   
- constructor( 
-   private userService: UserService, 
-   private videoChatService: QBService,
-   private qbConfigService: QBAppConfigService) {
+constructor( 
+ private userService: UserService, 
+ private videoChatService: QBService,
+ private qbConfigService: QBAppConfigService) {
 
-   qbConfigService.getConfig().subscribe(c => {
-     this.qbConfig = c;    
-   });        
-    
+ qbConfigService.getConfig().subscribe(c => {
+   this.qbConfig = c;    
+ });
+ 
+ this.initVideoChat();
+}
+ 
+initVideoChat(){
+ if(this.isVideoInited)
+   return;
+
+ this.isVideoInited = true;
+
+ let login = this.qbConfig.user_prefix + this.userService.getUser().username;
+ let pass = this.userService.getUser().im_hash;
+
+ this.videoChatService.initVideoChatEssentials(login, pass);
+ this.videoChatConnectivityStatus();
+}    
+
+videoChatConnectivityStatus(){
+ if(!_.isUndefined(this.videChatStatusSubscriber)) {
+  this.videChatStatusSubscriber.unsubscribe();
  }
- initVideoChat(){
-    if(this.isVideoInited)
-      return;
 
-    this.isVideoInited = true;
+ this.videChatStatusSubscriber = this.videoChatService.userConnectivityStatusEmitter.subscribe(data => {
+   if(data.type !== 'general')
+     return;
 
-    let login = this.qbConfig.user_prefix + this.userService.getUser().username;
-    let pass = this.userService.getUser().im_hash;
+   if(!data.status) {
+     this.videoChatStatus = false;
 
-    this.videoChatService.initVideoChatEssentials(login, pass);
-    this.videoChatConnectivityStatus();
-  }    
+     let message = data.detail;
+     if(!_.isUndefined(data.detail.message)) {
+       message =  data.detail.message;
+     }
 
-  videoChatConnectivityStatus(){
-    if(!_.isUndefined(this.videChatStatusSubscriber)) {
-      this.videChatStatusSubscriber.unsubscribe();
-    }
-
-    this.videChatStatusSubscriber = this.videoChatService.userConnectivityStatusEmitter.subscribe(data => {
-      if(data.type !== 'general')
-        return;
-
-      if(!data.status) {
-        this.videoChatStatus = false;
-
-        let message = data.detail;
-        if(!_.isUndefined(data.detail.message)) {
-          message =  data.detail.message;
-        }
-
-        this.videoChatStatusDesc = message;
-        this.statusText = 'Offline. ' + message;
-      }else{
-        this.statusText = 'Online';
-        this.videoChatStatus = true;
-        this.videoChatStatusDesc = 'You are online and can receive video calls.';
-      }
-
-    });
-  }
+     this.videoChatStatusDesc = message;
+     this.statusText = 'Offline. ' + message;
+   }else{
+     this.statusText = 'Online';
+     this.videoChatStatus = true;
+     this.videoChatStatusDesc = 'You are online and can receive video calls.';
+   }
+  });
+ }
   ```
